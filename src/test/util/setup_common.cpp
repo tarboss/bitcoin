@@ -34,6 +34,9 @@
 
 #include <functional>
 
+#include <boost/filesystem.hpp>
+#include <iostream>
+
 const std::function<std::string(const char*)> G_TRANSLATION_FUN = nullptr;
 UrlDecodeFn* const URL_DECODE = nullptr;
 
@@ -112,7 +115,13 @@ BasicTestingSetup::BasicTestingSetup(const std::string& chainName, const std::ve
 BasicTestingSetup::~BasicTestingSetup()
 {
     LogInstance().DisconnectTestLogger();
-    fs::remove_all(m_path_root);
+    try {
+        fs::remove_all(m_path_root);
+    } catch (boost::filesystem::filesystem_error const& e) {
+        std::cout << e.what() << '\n';
+        std::cout << "Value: 0x" << std::hex << e.code().value() << '\n';
+    }
+
     gArgs.ClearArgs();
     ECC_Stop();
 }
